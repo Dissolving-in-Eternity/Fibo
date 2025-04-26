@@ -1,0 +1,15 @@
+# Ignore all bin and obj folders, anywhere in the repo
+**/bin/
+**/obj/
+
+# Ignore Visual Studio temp folders
+.vs/
+*.user
+*.suo
+
+# Ignore logs
+*.log
+
+# OS junk
+Thumbs.db
+.DS_Store

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option csharp_namespace = "Fibonacci.Calculator.Proto";
+
+service FibonacciCalculator {
+  rpc Calculate (FibonacciRequest) returns (FibonacciReply);
+}
+
+message FibonacciRequest {
+  int32 number = 1;
+}
+
+message FibonacciReply {
+  int64 result = 1;
+}
