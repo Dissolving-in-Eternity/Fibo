@@ -1,0 +1,13 @@
+﻿@FibonacciBFF_HostAddress = http://localhost:5222
+
+### 🧪 Test Fibonacci API - POST number to BFF
+
+POST {{FibonacciBFF_HostAddress}}/fibonacci/calculate
+Content-Type: application/json
+Accept: application/json
+
+{
+  "number": 10
+}
+
+###
