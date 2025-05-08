@@ -18,17 +18,32 @@ services:
     ports:
       - "6379:6379"
 
-  app:
+  grpc:
     build:
-      context: .
+      context: ./Fibonacci.Calculator
       dockerfile: Dockerfile
+    container_name: fib-grpc
     environment:
-      - REDIS_CONNECTION_STRING=redis:6379  # Set your Redis connection string here
+      - REDIS_CONNECTION_STRING=redis:6379
     depends_on:
       - redis
       - postgres
     ports:
-      - "5000:80"  # Adjust this if needed
+      - "5000:80"
+
+  bff:
+    build:
+      context: .
+      dockerfile: FibonacciBFF/Dockerfile
+    container_name: fib-bff
+    depends_on:
+      - grpc
+    ports:
+      - "5100:8080"
+
+networks:
+  default:
+    name: fib-network
 
 volumes:
   pgdata:

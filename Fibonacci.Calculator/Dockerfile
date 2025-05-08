@@ -11,14 +11,13 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy the project file and restore dependencies
-COPY ["Fibonacci.Calculator/Fibonacci.Calculator.csproj", "Fibonacci.Calculator/"]
-RUN dotnet restore "./Fibonacci.Calculator/Fibonacci.Calculator.csproj"
+COPY ["Fibonacci.Calculator.csproj", "."]
+RUN dotnet restore "./Fibonacci.Calculator.csproj"
 
 # Copy the rest of the project files (including Protos folder)
 COPY . .
 
 # Change to the project directory and build the project
-WORKDIR "/src/Fibonacci.Calculator"
 RUN dotnet build "./Fibonacci.Calculator.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publish stage

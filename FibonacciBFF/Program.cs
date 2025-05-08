@@ -11,7 +11,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddGrpcClient<FibonacciCalculator.FibonacciCalculatorClient>(o =>
 {
-    o.Address = new Uri("http://localhost:5000");
+    //o.Address = new Uri("http://localhost:5000"); // for local
+    o.Address = new Uri("http://fib-grpc:80");  // for docker - use the container name as the hostname
 });
 
 var app = builder.Build();
