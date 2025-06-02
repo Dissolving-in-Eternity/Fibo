@@ -15,8 +15,7 @@ namespace Fibonacci.Calculator.Migrations
                 name: "FibonacciResults",
                 columns: table => new
                 {
-                    Number = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Number = table.Column<int>(type: "integer", nullable: false),
                     Result = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>

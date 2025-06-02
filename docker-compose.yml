@@ -11,12 +11,42 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:latest
     container_name: fib-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fib-rabbitmq
+    hostname: fib-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error},{default,info}] disk_free_limit 2147483648
+    ports:
+      - "5672:5672"   # RabbitMQ default protocol
+      - "15672:15672" # RabbitMQ management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   grpc:
     build:
@@ -24,22 +54,48 @@ services:
       dockerfile: Dockerfile
     container_name: fib-grpc
     environment:
-      - REDIS_CONNECTION_STRING=redis:6379
+      - ConnectionStrings__Redis=fib-redis:6379
+      - ConnectionStrings__Postgres=Host=fib-postgres;Database=fibdb;Username=postgres;Password=postgres
+      - RabbitMq__HostName=fib-rabbitmq
+      - RabbitMq__Port=5672
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
     depends_on:
-      - redis
-      - postgres
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     ports:
-      - "5000:80"
+      - "5283:80"
 
   bff:
     build:
       context: .
       dockerfile: FibonacciBFF/Dockerfile
     container_name: fib-bff
+    environment:
+      - GRPC_SERVICE_URL=http://fib-grpc:80
     depends_on:
       - grpc
     ports:
       - "5100:8080"
+
+  factorial:
+    build:
+      context: ./FactorialCalculator
+      dockerfile: Dockerfile
+    container_name: fib-factorial
+    environment:
+      - RabbitMq__HostName=fib-rabbitmq
+      - RabbitMq__Port=5672
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
 
 networks:
   default:
@@ -47,3 +103,4 @@ networks:
 
 volumes:
   pgdata:
+  rabbitmq_data:

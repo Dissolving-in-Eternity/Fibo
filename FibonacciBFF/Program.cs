@@ -1,4 +1,8 @@
 using Fibonacci.Calculator.Proto;
+using System.Net;
+
+// Enable HTTP/2 without TLS for local development
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +15,24 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddGrpcClient<FibonacciCalculator.FibonacciCalculatorClient>(o =>
 {
-    //o.Address = new Uri("http://localhost:5000"); // for local
-    o.Address = new Uri("http://fib-grpc:80");  // for docker - use the container name as the hostname
+    // Prioritize environment variable, then configuration, then local development fallback
+    var grpcServiceUrl = Environment.GetEnvironmentVariable("GRPC_SERVICE_URL")
+                         ?? builder.Configuration["GrpcServiceUrl"] 
+                         ?? "http://localhost:5283"; // Local development fallback
+    
+    o.Address = new Uri(grpcServiceUrl);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+    handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    return handler;
+})
+.ConfigureChannel(options =>
+{
+    // Configure for HTTP/2 without TLS
+    options.HttpVersion = new Version(2, 0);
+    options.ThrowOperationCanceledOnCancellation = true;
 });
 
 var app = builder.Build();

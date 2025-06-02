@@ -1,15 +1,57 @@
-# Ignore all bin and obj folders, anywhere in the repo
-**/bin/
-**/obj/
-
-# Ignore Visual Studio temp folders
+# Build artifacts
+bin/
+obj/
+out/
 .vs/
+
+# User-specific files
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 
-# Ignore logs
+# Visual Studio Code settings
+.vscode/
+
+# Rider settings
+.idea/
+
+# Logs
 *.log
 
-# OS junk
-Thumbs.db
-.DS_Store
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# DotCover
+*.dotCover
+
+# NUnit
+TestResult.xml
+TestResults/
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# .NET Secrets
+secrets.json
+
+# Ignore global.json lock file
+global.json.lock
+
+# Ignore packages (if not using package restore)
+packages/
+
+# Ignore local SQLite DB files (if used for testing)
+*.db
+*.sqlite
+
+# Ignore appsettings with local overrides (optional)
+appsettings.*.local.json
